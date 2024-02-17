@@ -1,0 +1,152 @@
+library(dplyr)
+library(coin)
+library(moments)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+
+
+# Read the data
+data_ice_cream <- read.csv("ice_data_viz.csv")
+
+# Convert to dummy variables
+data_for_kruskal_order_type <- within(data_ice_cream, {
+  Jan <- as.numeric(month_name == "JAN")
+  Feb <- as.numeric(month_name == "FEB")
+  Mar <- as.numeric(month_name == "MAR")
+  Apr <- as.numeric(month_name == "APR")
+  May <- as.numeric(month_name == "MAY")
+  Jun <- as.numeric(month_name == "JUN")
+  Jul <- as.numeric(month_name == "JUL")
+  Aug <- as.numeric(month_name == "AUG")
+  Sep <- as.numeric(month_name == "SEP")
+  Oct <- as.numeric(month_name == "OCT")
+  Nov <- as.numeric(month_name == "NOV")
+  Dec <- as.numeric(month_name == "DEC")
+  
+})
+
+# Convert to a factor
+data_for_kruskal_order_type$month_name <- as.factor(data_for_kruskal_order_type$month_name)
+
+# Perform Kruskal-Wallis test
+result_kruskal_order_type <- kruskal.test(daily_sales_value ~ month_name, data = data_for_kruskal_order_type)
+print(result_kruskal_order_type)
+
+# Convert to dummy variables
+data_for_kruskal_weatherconditions <- within(data_ice_cream, {
+  Windy <- as.numeric(dominant_weather_type == "windy")
+  Rainy <- as.numeric(dominant_weather_type == "rainy")
+  Sunny <- as.numeric(dominant_weather_type == "sunny")
+  Cloudy <- as.numeric(dominant_weather_type == "cloudy")
+})
+
+# Convert to a factor
+data_for_kruskal_weatherconditions$dominant_weather_type <- as.factor(data_for_kruskal_weatherconditions$dominant_weather_type)
+
+# Perform Kruskal-Wallis test
+result_kruskal_weather <- kruskal.test(daily_sales_value ~ dominant_weather_type, data = data_for_kruskal_weatherconditions)
+print(result_kruskal_weather)
+
+
+#FOR MANN-WHITNEY
+#FOR MANN-WHITNEY
+#FOR MANN-WHITNEY
+
+result_mann <- wilcox.test(daily_sales_value ~ product_type, data = data)
+print(result_mann)
+
+
+
+#BELOW IS FOR THE SPEARMANS
+#BELOW IS FOR THE SPEARMANS
+#BELOW IS FOR THE SPEARMANS
+
+# Convert City_Type to ordinal numeric values
+data_for_spearman <- within(data, {
+  temp_category <- as.numeric(factor(Health_Status, levels = c("cool", "windy","warm", "hot")))
+})
+
+
+
+# FOR DATA VISUALIZATION
+
+# for weekday and sales
+ggplot(data_ice_cream, aes(x = factor(weekday_name, levels = c("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")),
+                           y = daily_sales_value, fill = weekday_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Sales by Week",
+       x = "Weekday",
+       y = "Sales") +
+  scale_y_continuous(labels = comma)+
+  theme(legend.position = "none")
+
+# for month and sales
+ggplot(data_ice_cream, aes(x = factor(month_name, levels = c("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL" , "AUG" , "SEP", "OCT" , "NOV" , "DEC")),
+                           y = daily_sales_value, fill = month_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Sales by Month",
+       x = "Month",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = comma)+
+  theme(legend.position = "none")
+
+# for product and sales
+ggplot(data_ice_cream, aes(x = factor(product_name),
+                           y = daily_sales_value, fill = product_name)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Sales by product",
+       x = "product",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = comma)+
+  theme(legend.position = "none")
+
+# for weather and sales
+ggplot(data_ice_cream, aes(x = factor(dominant_weather_type),
+                           y = daily_sales_value, fill = dominant_weather_type)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Sales by Weather",
+       x = "Weather",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = comma)
+
+# for temp and sales
+ggplot(data_ice_cream, aes(x = factor(dominant_temp_category),
+                           y = daily_sales_value, fill = dominant_temp_category)) +
+  geom_bar(stat = "sum", position = "stack") +
+  labs(title = "Sales by Temperature",
+       x = "Temperature",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = comma)
+
+# for product type and sales
+ggplot(data_ice_cream, aes(x = factor(product_type),
+                           y = daily_sales_value, fill = product_type)) +
+  geom_bar(stat = "sum", position = "stack") +
+  labs(title = "Sales by Product Type",
+       x = "Product Type",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = comma)
+
+
+
+
+# Convert 'weekday_name' to a factor with specified levels
+data_ice_cream$weekday_name <- factor(data_ice_cream$weekday_name,
+                                      levels = c("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"))
+# Create a box plot
+ggplot(data_ice_cream, aes(x = product_type, y = daily_sales_value, fill = product_type)) +
+  geom_boxplot() +
+  labs(title = "Sales by Product Type (Box Plot)",
+       x = "Product Type",
+       y = "Sales") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma)
+
+
+
